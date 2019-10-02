@@ -1,4 +1,5 @@
-const express = 'express';
+//require the yarn express module
+const express = require('express');
 
 const router = express.Router();
 

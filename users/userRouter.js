@@ -6,21 +6,29 @@ const router = express.Router();
 
 //import user database file
 const userDB = require('./userDb.js');
-
+const postDB = require('../posts/postRouter.js');
 
 /********************************************END POINTS****************************************/
 
-router.post('/', (req, res) => {
+router.post('/', validateUser, (req, res) => {
 
 });
 
-router.post('/:id/posts', validateUserId, (req, res) => {
+router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
 
     res.status(200).json( {message: 'success'} );
 
 });
 
 router.get('/', (req, res) => {
+
+    userDB.get()
+    .then(users => {
+        res.status(200).json(users);
+    })
+    .catch(error => {
+        res.status(500).json( {error: 'The users informatio could not be retrieved.'} );
+    })
 
 });
 
@@ -53,7 +61,7 @@ router.put('/:id', validateUserId, (req, res) => {
 //local middleware 
 function validateUserId(req, res, next) {
 
-    const userId = req.headers.id;
+    const userId = req.params.id;
     
     userDB.getById(userId)
     .then (user => {
@@ -72,11 +80,35 @@ function validateUserId(req, res, next) {
 };
 
 function validateUser(req, res, next) {
+    const userInformation = req.body;   
+    const userName = userInformation.name; 
+
+    if(userInformation.length === 0){
+        res.status(400).json( {message: 'Missing user data.'} )
+    }
+    else if (userName.length === 0){
+        res.status(400).json( {message: 'Missing required name field.'} );
+    }
+    else {
+        next();
+    }
 
 };
 
 function validatePost(req, res, next) {
 
+    const postInformation = req.body;
+    const postText = postInformation.text;
+
+    if(postInformation.length === 0){
+        res.status(400).json( {message: 'Missing post data.'} )
+    }
+    else if (postText){
+        res.status(400).json( {message: 'Missing required text field.'} );
+    }
+    else {
+        next();
+    }
 };
 
 //exports the router so it is available to the main server file
