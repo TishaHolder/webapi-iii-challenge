@@ -99,12 +99,31 @@ router.delete('/:id', validateUserId, (req, res) => {
 
 router.put('/:id', validateUserId, (req, res) => {
 
-    res.status(200).json( {message: 'success'} );
+    const id = req.params.id;
+    const changes = req.body;
+
+    //****this didn't work because method is expecting an object with the changes to apply. req.body contains an object
+    //while postBody.name contains a single value
+    //const changes = postBody.name; 
+
+    userDB.update(id, changes)
+    .then(updateCount => {
+        if(updateCount > 0){
+            res.status(200).json ( {message: 'The user was successfully updated.'} );
+        }
+        else {
+            res.status(404).json( {message: 'The user record was not updated.'} );
+        }
+    })
+    .catch(error => {
+        console.log("update error", error);
+        res.status(500).json( {error: 'The user record could not be updated.'} );
+    })
+    
 
 });
 
 //custom middleware
-
 //local middleware 
 function validateUserId(req, res, next) {
 
