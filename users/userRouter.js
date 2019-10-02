@@ -66,13 +66,34 @@ router.get('/:id', validateUserId, (req, res) => {
 
 router.get('/:id/posts', validateUserId, (req, res) => {
 
-    res.status(200).json( {message: 'success'} );
+    const userId = req.params.id;
+
+    userDB.getUserPosts(userId)
+    .then(posts => {
+        res.status(200).json(posts);
+    })
+    .catch (error => {
+        res.status(500).json( {error: 'There was an error retrieving the posts from the database.'} );
+    })   
 
 });
 
 router.delete('/:id', validateUserId, (req, res) => {
 
-    res.status(200).json( {message: 'success'} );
+    const userId = req.params.id;
+
+    userDB.remove(userId)
+    .then(numDeleted => {
+        if(numDeleted > 0){
+            res.status(200).json( {message: 'The user record was successfully deleted.'} )
+        }
+        else {
+            res.status(404).json( {message: 'The user was not deleted.'} );
+        }
+    })
+    .catch(error => {
+        res.status(500).json( {error: 'The user could not be removed.'});
+    })
 
 });
 
